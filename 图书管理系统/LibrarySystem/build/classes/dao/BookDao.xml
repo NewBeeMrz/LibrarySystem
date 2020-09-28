@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dao.BookDao">
+	<!-- 查询书籍列表 -->
+	<select id="getBookList" parameterType="book" resultType="book">
+		SELECT
+		* from book order by type_id limit #{start},#{rows}
+
+	</select>
+
+	<!-- 查询书籍总数 -->
+	<select id="getBookListCount" parameterType="book"
+		resultType="Integer">
+		select count(*) from book
+
+	</select>
+
+	<!-- 查询书籍 -->
+	<select id="getBookbyID" parameterType="Integer"
+		resultType="book">
+		SELECT book.* ,c_name from book join category on
+		type_id=c_id where book_id=#{book_id}
+
+	</select>
+
+	<!-- 查询书籍列表 Search -->
+	<select id="getSearchList" parameterType="book"
+		resultType="book">
+		SELECT * from book
+		<where>
+			<if test="type_id gt 0 ">
+				and type_id=#{type_id}
+			</if>
+			<if test="search_content != null and search_content != ''">
+				and book_name like '%${search_content}%'
+				or author like '%${search_content}%'
+				or press like
+				'%${search_content}%'
+			</if>
+		</where>
+		limit #{start},#{rows}
+	</select>
+
+	<!-- 查询书籍总数 Search -->
+	<select id="getSearchListCount" parameterType="book"
+		resultType="Integer">
+		SELECT count(*) from book
+		<where>
+			<if test="type_id gt 0">
+				and type_id=#{type_id}
+			</if>
+			<if test="search_content != null and search_content != ''">
+				and book_name like '%${search_content}%'
+				or author like '%${search_content}%'
+				or press like
+				'%${search_content}%'
+			</if>
+		</where>
+	</select>
+
+	<!-- 添加书籍 -->
+	<insert id="createBook" parameterType="Book">
+		insert into
+		book(book_name,intro,author,number,price,type_id,photourl,position,press)
+		values(#{book_name},#{intro},#{author},#{number},#{price},#{type_id},#{photourl},#{position},#{press})
+	</insert>
+
+	<!-- 查询书籍总数 某个分类中 -->
+	<select id="getBookByType" parameterType="Integer"
+		resultType="Integer">
+		SELECT count(*) from book join category on type_id = c_id
+		<where>
+			and type_id=#{type_id}
+		</where>
+	</select>
+
+	<!-- 删除书籍 -->
+	<delete id="deleteBookByID" parameterType="Integer">
+		delete from book where book_id = #{book_id}
+	</delete>
+
+	<!-- 修改书籍信息 -->
+	<update id="updateBook" parameterType="book">
+		update book
+		<set>
+			<if test="book_name!=null">
+				book_name=#{book_name},
+			</if>
+			<if test="intro!=null">
+				intro=#{intro},
+			</if>
+			<if test="author!=null">
+				author=#{author},
+			</if>
+			<if test="number !=null">
+				number =#{number },
+			</if>
+			<if test="price !=null">
+				price =#{price },
+			</if>
+			<if test="type_id!=null">
+				type_id=#{type_id},
+			</if>
+			<if test="photourl!=null">
+				photourl=#{photourl},
+			</if>
+			<if test="position!=null">
+				position=#{position},
+			</if>
+			<if test="press!=null">
+				press=#{press}
+			</if>
+		</set>
+		where book_id=#{book_id}
+	</update>
+</mapper>

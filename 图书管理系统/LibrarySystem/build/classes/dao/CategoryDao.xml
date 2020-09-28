@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dao.CategoryDao" >
+    <!-- 查询图书分类列表  -->
+	<select id="getCateList"  resultType="Category">
+		SELECT * from category  order by c_id
+	</select>
+     
+    <!-- 创建图书分类 -->
+    <insert id="careateCategory">
+    	insert into category(c_name,intro) values(#{c_name},#{intro})
+    </insert>
+    
+    <!-- 删除图书分类 -->
+    <delete id="deleteCategory" parameterType="Integer">
+    	delete from category where c_id = #{c_id}
+    </delete>
+    
+    <!-- 根据id查询分类信息 -->
+    <select id="getCategorybyID" parameterType="Integer" resultType="category">
+    	select * from category where c_id = #{c_id}
+    </select>
+    
+    <!-- 修改分类信息 -->
+	<update id="updateCategory" parameterType="category">
+		update category
+		<set>
+			<if test="c_name!=null">
+				c_name=#{c_name},
+			</if>
+			<if test="intro!=null">
+				intro=#{intro},
+			</if>
+		</set>
+		where c_id=#{c_id}
+	</update>
+	
+	<!-- 查询分类列表 Search -->
+	<select id="getCsearchList" parameterType="String" resultType="category">
+		SELECT * from category
+		<where>
+			<if test="search_content != null and search_content != ''">
+				and c_name like '%${search_content}%'
+				or intro like '%${search_content}%'
+			</if>
+		</where>
+	</select>
+</mapper>

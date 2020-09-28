@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dao.BorrowDao" >
+    <!-- 查询单个用户借阅列表  -->
+	<select id="getborrowtableByUser"  parameterType="Borrowtable" resultType="Borrowtable">
+		SELECT borrowtable.* ,user_name,book_name from borrowtable,user,book
+		where borrowtable.user_id = user.user_id 
+		and borrowtable.book_id = book.book_id
+		and borrowtable.user_id = #{user_id}
+		order by borrow_date desc
+		limit #{start},#{rows}
+	</select>
+     
+     <!-- 查询单个用户借阅列表总数  -->
+	<select id="getborrowtableByUserCount"  parameterType="Borrowtable" resultType="Integer">
+		SELECT count(*) from borrowtable where user_id = #{user_id} order by borrow_date desc
+	</select>
+	
+	<!-- 搜索借阅列表  Search-->
+	<select id="getSearchList" parameterType="borrowtable" 
+                                         resultType="borrowtable">
+		SELECT borrowtable.* ,user_name,book_name 
+		from borrowtable left join user on borrowtable.user_id = user.user_id 
+		left join book on borrowtable.book_id = book.book_id
+			<where>
+				<if test="user_id != -1">
+				and borrowtable.user_id = #{user_id}
+				</if>
+				<if test="status != null and status != ''">
+				and status like  '${status}' 
+				</if>
+				
+				<if test="search_content != null and search_content != ''">
+				and (user_name like  '%${search_content}%' 
+				or book_name like  '%${search_content}%'
+				or borrowtable.user_id like  '%${search_content}%')
+				</if>
+				<if test="search_date != null and search_date != ''">
+				and (borrow_date like  '%${search_date}%' 
+				or return_date like  '%${search_date}%')
+				</if>
+			</where>
+			order by borrow_date desc
+			limit #{start},#{rows}
+	</select>
+	
+	 <!-- 搜索借阅总数  Search-->
+	<select id="getSearchListCount" parameterType="borrowtable" 
+                                                 resultType="Integer">
+		SELECT count(*) from 
+		borrowtable left join user on borrowtable.user_id = user.user_id 
+		left join book on borrowtable.book_id = book.book_id 
+			<where>
+				<if test="user_id != -1">
+				and borrowtable.user_id = #{user_id}
+				</if>
+				<if test="status != null and status != ''">
+				and status like  '${status}' 
+				</if>
+				
+				<if test="search_content != null and search_content != ''">
+				and (user_name like  '%${search_content}%' 
+				or book_name like  '%${search_content}%'
+				or borrowtable.user_id like  '%${search_content}%')
+				</if>
+				<if test="search_date != null and search_date != ''">
+				and (borrow_date like  '%${search_date}%' 
+				or return_date like  '%${search_date}%')
+				</if>
+			</where>
+	</select>
+	
+	<!-- 管理员查询借阅列表 -->
+	<select id="getBorrowtableList" parameterType="borrowtable" resultType="borrowtable">
+		SELECT borrowtable.* ,user_name,book_name from borrowtable,user,book 
+		where borrowtable.user_id = user.user_id 
+		and borrowtable.book_id = book.book_id
+		order by borrow_date desc
+		limit #{start},#{rows}
+	</select>
+
+	<!-- 管理员查询借阅总数 -->
+	<select id="getBorrowtableListCount" parameterType="borrowtable"
+		resultType="Integer">
+		select count(*) from borrowtable
+
+	</select>
+	
+	<!-- 创建借阅记录 -->
+    <insert id="createBorrow">
+    	insert into borrowtable(user_id,book_id,borrow_date,status) values (#{user_id},#{book_id},#{borrow_date},#{status})
+    </insert>
+    
+    <!-- 还书 -->
+    <update id="returnBook" parameterType="borrowtable">
+    	update borrowtable
+    	<set>
+    		return_date = #{return_date},
+    		status = #{status}
+    	</set>
+    	where user_id = #{user_id}
+    	and book_id = #{book_id}
+    </update>
+</mapper>
